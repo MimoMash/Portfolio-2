@@ -32,7 +32,7 @@ setTimeout(start, 2500); // This waites 2.5seconds before calling the function. 
 
 async function start() {
 
-    do {
+    do { 
 
         let chosenAction = NO_CHOICE;
         chosenAction = await showMenu();
@@ -134,7 +134,7 @@ function evaluateGameState() {
             sum += gameboard[row][col];
         }
 
-        if (Math.abs(sum) == 3) {
+        if (Math.abs(sum) == GAME_BOARD_SIZE) {
             state = sum;
         }
         sum = 0;
@@ -146,14 +146,32 @@ function evaluateGameState() {
             sum += gameboard[row][col];
         }
 
-        if (Math.abs(sum) == 3) {
+        if (Math.abs(sum) == GAME_BOARD_SIZE) {
             state = sum;
         }
 
         sum = 0;
     }
 
-    let winner = state / 3;
+    for (let row = 0, col = 0; row, col < GAME_BOARD_SIZE; row++, col++) {
+        sum += gameboard[row][col];
+    }
+     if (Math.abs(sum) == GAME_BOARD_SIZE) {
+            state = sum;
+        }
+        sum = 0;
+    
+
+    for (let row = 0, col = GAME_BOARD_SIZE - 1; row < GAME_BOARD_SIZE && col >= 0; row++, col--) {
+        sum += gameboard[row][col];
+    }
+    if (Math.abs(sum) == GAME_BOARD_SIZE) {
+        state = sum;
+    }
+    sum = 0;
+    
+    
+    let winner = state / GAME_BOARD_SIZE;
     return winner;
 }
 
@@ -216,7 +234,7 @@ function showGameBoardWithCurrentState() {
             else if (cell > 0) {
                 rowOutput += "X ";
             } else {
-                rowOutput += "O  ";
+                rowOutput += "O ";
             }
         }
 
