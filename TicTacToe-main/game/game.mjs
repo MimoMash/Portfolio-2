@@ -24,7 +24,8 @@ const LANGUAGE_CHOICES = {
     NORWEGIAN: 2,
 }
 
-let language = DICTIONARY.no;
+let languageChoice = [DICTIONARY.en, DICTIONARY.no];
+let language = languageChoice[0];
 let gameboard;
 let currentPlayer;
 
@@ -45,11 +46,11 @@ async function chooseLanguage() {
     
     choice = await askQuestion(pretty.EMPTY);
 
-if (choice == LANGUAGE_CHOICES.ENGLISH) {
-    language = DICTIONARY.en;
-} else if (choice == LANGUAGE_CHOICES.NORWEGIAN) {
-    language = DICTIONARY.no;
-}
+    for (let i = 0; i <= languageChoice.length + 1; i++) {
+        if (choice == i) {
+            language = languageChoice[i - 1];  
+        }
+    }
 
     if ([LANGUAGE_CHOICES.ENGLISH, LANGUAGE_CHOICES.NORWEGIAN].includes(Number(choice))) {
         validChoice = true;
