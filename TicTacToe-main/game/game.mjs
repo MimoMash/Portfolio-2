@@ -35,28 +35,7 @@ showSplashScreen();
 setTimeout(start, 2500); // This waites 2.5seconds before calling the function. i.e. we get to see the splash screen for 2.5 seconds before the menue takes over. 
 
 
-async function chooseLanguage() {
-    let choice = -1;
-    let validChoice = false;
-    while (!validChoice) {
-    clearScreen();
-    print(language.CHOOSE_LANGUAGE);
-    print(language.ENGLISH);
-    print(language.NORWEGIAN);
-    
-    choice = await askQuestion(pretty.EMPTY);
 
-    for (let i = 0; i <= languageChoice.length + 1; i++) {
-        if (choice == i) {
-            language = languageChoice[i - 1];  
-        }
-    }
-
-    if ([LANGUAGE_CHOICES.ENGLISH, LANGUAGE_CHOICES.NORWEGIAN].includes(Number(choice))) {
-        validChoice = true;
-    }
-}
-}
 //#region game functions -----------------------------
 
 async function start() {
@@ -114,6 +93,29 @@ async function showMenu() {
     return choice;
 }
 
+async function chooseLanguage() {
+    let choice = -1;
+    let validChoice = false;
+    while (!validChoice) {
+    clearScreen();
+    print(language.CHOOSE_LANGUAGE);
+    print(language.ENGLISH);
+    print(language.NORWEGIAN);
+    
+    choice = await askQuestion(pretty.EMPTY);
+
+    for (let i = 0; i <= languageChoice.length + 1; i++) {
+        if (choice == i) {
+            language = languageChoice[i - 1];  
+        }
+    }
+
+    if ([LANGUAGE_CHOICES.ENGLISH, LANGUAGE_CHOICES.NORWEGIAN].includes(Number(choice))) {
+        validChoice = true;
+    }
+}
+}
+
 async function playGame() {
     // Play game..
     let outcome;
@@ -151,19 +153,6 @@ function showGameSummary(outcome) {
 
 function changeCurrentPlayer() {
     currentPlayer *= -1;
-}
-
-function checkIfDraw() {
-    let totalMoves = GAME_BOARD_SIZE * GAME_BOARD_SIZE;
-    let moveCount = 0;
-    while (moveCount < totalMoves) {
-
-    for (let row = 0; row < GAME_BOARD_SIZE; row++) {
-
-        for (let col = 0; col < GAME_BOARD_SIZE; col++) {
-        }
-    }
-}
 }
 
 function evaluateGameState() {
@@ -217,7 +206,6 @@ function evaluateGameState() {
     return winner; 
 }
 
-
 function updateGameBoardState(move) {
     const ROW_ID = 0;
     const COLUMN_ID = 1;
@@ -229,6 +217,10 @@ async function getGameMoveFromCurrentPlayer() {
     do {
         let rawInput = await askQuestion(language.PLACE_MARK);
         position = rawInput.split(pretty.SPACE);
+        position[0] = parseInt(position[0]);
+        position[1] = parseInt(position[1]);
+        position[0] = position[0] - 1;
+        position[1] = position[1] - 1;
     } while (isValidPositionOnBoard(position) == false)
 
     return position
@@ -237,7 +229,6 @@ async function getGameMoveFromCurrentPlayer() {
 function isValidPositionOnBoard(position) {
 
     if (position.length < 2) {
-        // We where not given two numbers or more.
         return false;
     }
 
