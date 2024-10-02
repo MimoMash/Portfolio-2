@@ -2,8 +2,9 @@ const DICTIONARY = {
 
     en: {
         MENU: "MENU",
-        SETTINGS: "Settings",
-        EXIT_GAME: "Exit Game",
+        PLAY_GAME: "1. Play Game",
+        SETTINGS: "2. Settings",
+        EXIT_GAME: "3. Exit Game",
         WINNER_IS: "Winner is player ",
         GAME_OVER: "GAME OVER",
         PLAYER_1: "one",
@@ -17,8 +18,9 @@ const DICTIONARY = {
     },
     no: {
         MENU: "MENY",
-        SETTINGS: "Innstillinger",
-        EXIT_GAME: "Avslutt Spill",
+        PLAY_GAME: "1. Spill",
+        SETTINGS: "2. Innstillinger",
+        EXIT_GAME: "3. Avslutt Spill",
         WINNER_IS: "Vinneren er spiller ",
         GAME_OVER: "SPILLET ER OVER",
         PLAYER_1: "en",
