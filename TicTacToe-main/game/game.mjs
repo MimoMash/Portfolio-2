@@ -29,6 +29,21 @@ showSplashScreen();
 setTimeout(start, 2500); // This waites 2.5seconds before calling the function. i.e. we get to see the splash screen for 2.5 seconds before the menue takes over. 
 
 
+async function chooseLanguage() {
+    let choice = -1;
+    clearScreen();
+    print("Choose your preferred language");
+    print("1. English");
+    print("2. Norwegian");
+    
+    choice = await askQuestion(pretty.EMPTY);
+    if (choice == 1) {
+        language = DICTIONARY.en;
+    }
+    if (choice == 2) {
+        language = DICTIONARY.no;
+    }
+}
 
 //#region game functions -----------------------------
 
@@ -42,7 +57,7 @@ async function start() {
         if (chosenAction == MENU_CHOICES.MENU_CHOICE_START_GAME) {
             await runGame();
         } else if (chosenAction == MENU_CHOICES.MENU_CHOICE_SHOW_SETTINGS) {
-            ///TODO: Needs implementing
+            await chooseLanguage();
         } else if (chosenAction == MENU_CHOICES.MENU_CHOICE_EXIT_GAME) {
             clearScreen();
             process.exit();
