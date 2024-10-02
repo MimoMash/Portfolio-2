@@ -19,6 +19,11 @@ const MENU_CHOICES = {
 
 const NO_CHOICE = -1;
 
+const LANGUAGE_CHOICES = {
+    ENGLISH: 1,
+    NORWEGIAN: 2,
+}
+
 let language = DICTIONARY.no;
 let gameboard;
 let currentPlayer;
@@ -31,20 +36,26 @@ setTimeout(start, 2500); // This waites 2.5seconds before calling the function. 
 
 async function chooseLanguage() {
     let choice = -1;
+    let validChoice = false;
+    while (!validChoice) {
     clearScreen();
-    print("Choose your preferred language");
-    print("1. English");
-    print("2. Norwegian");
+    print(language.CHOOSE_LANGUAGE);
+    print(language.ENGLISH);
+    print(language.NORWEGIAN);
     
     choice = await askQuestion(pretty.EMPTY);
-    if (choice == 1) {
-        language = DICTIONARY.en;
-    }
-    if (choice == 2) {
-        language = DICTIONARY.no;
-    }
+
+if (choice == LANGUAGE_CHOICES.ENGLISH) {
+    language = DICTIONARY.en;
+} else if (choice == LANGUAGE_CHOICES.NORWEGIAN) {
+    language = DICTIONARY.no;
 }
 
+    if ([LANGUAGE_CHOICES.ENGLISH, LANGUAGE_CHOICES.NORWEGIAN].includes(Number(choice))) {
+        validChoice = true;
+    }
+}
+}
 //#region game functions -----------------------------
 
 async function start() {
