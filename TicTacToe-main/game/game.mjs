@@ -3,6 +3,8 @@ import { debug, DEBUG_LEVELS } from "./debug.mjs";
 import { ANSI } from "./ansi.mjs";
 import DICTIONARY from "./language.mjs";
 import showSplashScreen from "./splash.mjs";
+import pretty from "./makePretty.mjs";
+
 
 const GAME_BOARD_SIZE = 3;
 const PLAYER_1 = 1;
@@ -74,7 +76,7 @@ async function showMenu() {
         print(language.EXIT_GAME);
 
         // Wait for the choice.
-        choice = await askQuestion("");
+        choice = await askQuestion(pretty.EMPTY);
 
         // Check to see if the choice is valid.
         if ([MENU_CHOICES.MENU_CHOICE_START_GAME, MENU_CHOICES.MENU_CHOICE_SHOW_SETTINGS, MENU_CHOICES.MENU_CHOICE_EXIT_GAME].includes(Number(choice))) {
@@ -199,7 +201,7 @@ async function getGameMoveFromCurrentPlayer() {
     let position = null;
     do {
         let rawInput = await askQuestion(language.PLACE_MARK);
-        position = rawInput.split(" ");
+        position = rawInput.split(pretty.SPACE);
     } while (isValidPositionOnBoard(position) == false)
 
     return position
@@ -238,17 +240,19 @@ function showHUD() {
 }
 
 function showGameBoardWithCurrentState() {
+    const PLAYER_X = "X ";
+    const PLAYER_O = "O ";
     for (let currentRow = 0; currentRow < GAME_BOARD_SIZE; currentRow++) {
-        let rowOutput = "";
+        let rowOutput = pretty.EMPTY;
         for (let currentCol = 0; currentCol < GAME_BOARD_SIZE; currentCol++) {
             let cell = gameboard[currentRow][currentCol];
             if (cell == 0) {
-                rowOutput += "_ ";
+                rowOutput += (pretty.UNDERSCORE + pretty.SPACE);
             }
             else if (cell > 0) {
-                rowOutput += "X ";
+                rowOutput += PLAYER_X;
             } else {
-                rowOutput += "O ";
+                rowOutput += PLAYER_O;
             }
         }
 
