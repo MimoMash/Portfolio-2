@@ -23,7 +23,12 @@ const LANGUAGE_CHOICES = {
     ENGLISH: 1,
     NORWEGIAN: 2,
 }
+const GAME_MODE = {
+        PVP: 1,
+        PVC: 2,
+    }
 
+let gameMode;
 let languageChoice = [DICTIONARY.en, DICTIONARY.no];
 let language = languageChoice[0];
 let gameboard;
@@ -46,6 +51,7 @@ async function start() {
         chosenAction = await showMenu();
 
         if (chosenAction == MENU_CHOICES.MENU_CHOICE_START_GAME) {
+            await chooseMode();
             await runGame();
         } else if (chosenAction == MENU_CHOICES.MENU_CHOICE_SHOW_SETTINGS) {
             await chooseLanguage();
@@ -61,30 +67,26 @@ async function start() {
 async function runGame() {
 
     let isPlaying = true;
-
-    while (isPlaying) { // Do the following until the player dos not want to play anymore. 
-        initializeGame(); // Reset everything related to playing the game
-        isPlaying = await playGamePvC(); // run the actual game 
+    while (isPlaying) { 
+        initializeGame(); 
+        isPlaying = await modeSelection();
     }
 }
 
 async function showMenu() {
 
-    let choice = -1;  // This variable tracks the choice the player has made. We set it to -1 initially because that is not a valid choice.
-    let validChoice = false;    // This variable tells us if the choice the player has made is one of the valid choices. It is initially set to false because the player has made no choices.
+    let choice = -1; 
+    let validChoice = false;    
 
     while (!validChoice) {
-        // Display our menu to the player.
         clearScreen();
         print(ANSI.COLOR.YELLOW + language.MENU + ANSI.RESET);
         print(language.PLAY_GAME);
         print(language.SETTINGS);
         print(language.EXIT_GAME);
 
-        // Wait for the choice.
         choice = await askQuestion(pretty.EMPTY);
 
-        // Check to see if the choice is valid.
         if ([MENU_CHOICES.MENU_CHOICE_START_GAME, MENU_CHOICES.MENU_CHOICE_SHOW_SETTINGS, MENU_CHOICES.MENU_CHOICE_EXIT_GAME].includes(Number(choice))) {
             validChoice = true;
         }
@@ -97,27 +99,55 @@ async function chooseLanguage() {
     let choice = -1;
     let validChoice = false;
     while (!validChoice) {
-    clearScreen();
-    print(language.CHOOSE_LANGUAGE);
-    print(language.ENGLISH);
-    print(language.NORWEGIAN);
+        clearScreen();
+        print(ANSI.COLOR.YELLOW + language.CHOOSE_LANGUAGE + ANSI.RESET);
+        print(language.ENGLISH);
+        print(language.NORWEGIAN);
     
-    choice = await askQuestion(pretty.EMPTY);
+        choice = await askQuestion(pretty.EMPTY);
 
-    for (let i = 0; i <= languageChoice.length + 1; i++) {
-        if (choice == i) {
+        for (let i = 0; i <= languageChoice.length + 1; i++) {
+            if (choice === i) {
             language = languageChoice[i - 1];  
+             }
+        }
+
+        if ([LANGUAGE_CHOICES.ENGLISH, LANGUAGE_CHOICES.NORWEGIAN].includes(Number(choice))) {
+            validChoice = true;
         }
     }
-
-    if ([LANGUAGE_CHOICES.ENGLISH, LANGUAGE_CHOICES.NORWEGIAN].includes(Number(choice))) {
-        validChoice = true;
-    }
 }
+
+async function chooseMode() {
+    let choice = -1;
+    let validChoice = false;
+
+    while(!validChoice) {
+        clearScreen();
+        print(ANSI.COLOR.YELLOW + "Which game mode would you like to play?" + ANSI.RESET);
+        print("1. Player vs Player");
+        print("2. Player vs Computer");
+
+        choice = await askQuestion(pretty.EMPTY);
+
+        if ([GAME_MODE.PVP, GAME_MODE.PVC].includes(Number(choice))) {
+            validChoice = true;
+        } 
+    }
+    return choice;
+}
+
+async function modeSelection() {
+    let choice = await chooseMode();
+    if (choice == GAME_MODE.PVP) {
+        gameMode = playGamePvP();
+    } else if (choice == GAME_MODE.PVC) {
+        gameMode = playGamePvC();
+    }
+    return gameMode;
 }
 
 async function playGamePvP() {
-
     let outcome;
     do {
         clearScreen();
@@ -135,7 +165,6 @@ async function playGamePvP() {
 }
 
 async function playGamePvC() {
-
     let outcome;
     do {
       clearScreen();
