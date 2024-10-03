@@ -64,7 +64,7 @@ async function runGame() {
 
     while (isPlaying) { // Do the following until the player dos not want to play anymore. 
         initializeGame(); // Reset everything related to playing the game
-        isPlaying = await playGame(); // run the actual game 
+        isPlaying = await playGamePvC(); // run the actual game 
     }
 }
 
@@ -116,7 +116,7 @@ async function chooseLanguage() {
 }
 }
 
-async function playGame() {
+async function playGamePvP() {
 
     let outcome;
     do {
@@ -133,6 +133,32 @@ async function playGame() {
 
     return await askWantToPlayAgain();
 }
+
+async function playGamePvC() {
+
+    let outcome;
+    do {
+      clearScreen();
+      showGameBoardWithCurrentState();
+      showHUD();
+      let move;
+      if (currentPlayer == PLAYER_1) {
+        move = await getGameMoveFromCurrentPlayer();
+      } else if (currentPlayer == PLAYER_2) {
+        move = computerMove();
+        while (isValidPositionOnBoard(move) == false) {
+          move = computerMove();
+        }
+    }
+      updateGameBoardState(move);
+      outcome = evaluateGameState(); 
+      changeCurrentPlayer();
+    } while (outcome == 0)
+  
+    showGameSummary(outcome);
+    
+    return await askWantToPlayAgain();
+  }
 
   function computerMove() {
     let row = Math.floor(Math.random() * GAME_BOARD_SIZE);
