@@ -117,7 +117,7 @@ async function chooseLanguage() {
 }
 
 async function playGame() {
-    // Play game..
+
     let outcome;
     do {
         clearScreen();
@@ -134,6 +134,14 @@ async function playGame() {
     return await askWantToPlayAgain();
 }
 
+  function computerMove() {
+    let row = Math.floor(Math.random() * GAME_BOARD_SIZE);
+    let col = Math.floor(Math.random() * GAME_BOARD_SIZE);
+    let move = [row, col];
+    return move;
+  }
+
+
 async function askWantToPlayAgain() {
     let answer = await askQuestion(language.PLAY_AGAIN_QUESTION);
     let playAgain = true;
@@ -146,7 +154,7 @@ async function askWantToPlayAgain() {
 function showGameSummary(outcome) {
     clearScreen();
     if (outcome == 0.5) {
-        print("It's a draw")
+        print(language.DRAW);
     } else {
       let winningPlayer = (outcome > 0) ? 1 : 2;  
     print(language.WINNER_IS + winningPlayer);
@@ -260,6 +268,7 @@ function isValidPositionOnBoard(position) {
     } else if (gameboard[position[0]][position[1]] !== 0) {
         return false;  
     } 
+
 }
 
 function showHUD() {
@@ -273,6 +282,7 @@ function showHUD() {
 function showGameBoardWithCurrentState() {
     const PLAYER_X = ANSI.COLOR.GREEN + "X " + ANSI.RESET;
     const PLAYER_O = ANSI.COLOR.RED + "O " + ANSI.RESET;
+    
     for (let currentRow = 0; currentRow < GAME_BOARD_SIZE; currentRow++) {
         let rowOutput = pretty.EMPTY;
         for (let currentCol = 0; currentCol < GAME_BOARD_SIZE; currentCol++) {
