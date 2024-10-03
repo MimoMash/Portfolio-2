@@ -145,8 +145,12 @@ async function askWantToPlayAgain() {
 
 function showGameSummary(outcome) {
     clearScreen();
-    let winningPlayer = (outcome > 0) ? 1 : 2;
+    if (outcome == 0.5) {
+        print("It's a draw")
+    } else {
+      let winningPlayer = (outcome > 0) ? 1 : 2;  
     print(language.WINNER_IS + winningPlayer);
+    }
     showGameBoardWithCurrentState();
     print(language.GAME_OVER);
 }
@@ -182,25 +186,42 @@ function evaluateGameState() {
 
         sum = 0;
     }
-{
-    for (let row = 0, col = 0; row, col < GAME_BOARD_SIZE; row++, col++) {
+
+
+    { for (let row = 0, col = 0; row, col < GAME_BOARD_SIZE; row++, col++) {
         sum += gameboard[row][col];
-    }
-    if (Math.abs(sum) == GAME_BOARD_SIZE) {
+        }
+
+        if (Math.abs(sum) == GAME_BOARD_SIZE) {
             state = sum;
         }
+
         sum = 0;
     }
     
-{
-    for (let row = 0, col = GAME_BOARD_SIZE - 1; row < GAME_BOARD_SIZE && col >= 0; row++, col--) {
+    { for (let row = 0, col = GAME_BOARD_SIZE - 1; row < GAME_BOARD_SIZE && col >= 0; row++, col--) {
         sum += gameboard[row][col];
-    }
-    if (Math.abs(sum) == GAME_BOARD_SIZE) {
+        }
+
+        if (Math.abs(sum) == GAME_BOARD_SIZE) {
         state = sum;
+        }
+
+        sum = 0;
     }
-    sum = 0;
-}
+
+    let draw = true;
+    for (let row = 0; row < GAME_BOARD_SIZE; row++) {
+        for (let col = 0; col < GAME_BOARD_SIZE; col++) {
+            if (gameboard[row][col] == 0) {
+                draw = false;
+            }
+        }
+    }
+
+    if (state == 0 && draw) {
+        return 0.5;
+    }
 
     let winner = state / GAME_BOARD_SIZE;
     return winner; 
@@ -216,9 +237,7 @@ async function getGameMoveFromCurrentPlayer() {
     let position = null;
     do {
         let rawInput = await askQuestion(language.PLACE_MARK);
-        position = rawInput.split(pretty.SPACE);
-        position[0] = parseInt(position[0]);
-        position[1] = parseInt(position[1]);
+        position = rawInput.split(pretty.SPACE).map(Number);
         position[0] = position[0] - 1;
         position[1] = position[1] - 1;
     } while (isValidPositionOnBoard(position) == false)
@@ -228,25 +247,24 @@ async function getGameMoveFromCurrentPlayer() {
 
 function isValidPositionOnBoard(position) {
 
-    if (position.length < 2) {
+    if (position.length !== 2) {
         return false;
     }
+    
+    if ((position[0]) * 1 !== (position[0])) {
+        return false;
 
-    let isValidInput = true;
-    if (position[0] * 1 != position[0] && position[1] * 1 != position[1]) {
-        // Not Numbers
-        inputWasCorrect = false;
-    } else if (position[0] > GAME_BOARD_SIZE && position[1] > GAME_BOARD_SIZE) {
-        // Not on board
-        inputWasCorrect = false;
+    } else if ((position[1]) * 1 !== (position[1])) {
+        return false;
+     
+    } else if (gameboard[position[0]][position[1]] !== 0) {
+        return false;  
+    } 
+
+    if (position[0] < 0 || position[0] >= GAME_BOARD_SIZE ||
+        position[1] < 0 || position[1] >= GAME_BOARD_SIZE) {
+      return false;
     }
-    else if (Number.parseInt(position[0]) != position[0] && Number.parseInt(position[1]) != position[1]) {
-        // Position taken.
-        inputWasCorrect = false;
-    }
-
-
-    return isValidInput;
 }
 
 function showHUD() {
@@ -258,14 +276,14 @@ function showHUD() {
 }
 
 function showGameBoardWithCurrentState() {
-    const PLAYER_X = "X ";
-    const PLAYER_O = "O ";
+    const PLAYER_X = ANSI.COLOR.GREEN + "X " + ANSI.RESET;
+    const PLAYER_O = ANSI.COLOR.RED + "O " + ANSI.RESET;
     for (let currentRow = 0; currentRow < GAME_BOARD_SIZE; currentRow++) {
         let rowOutput = pretty.EMPTY;
         for (let currentCol = 0; currentCol < GAME_BOARD_SIZE; currentCol++) {
             let cell = gameboard[currentRow][currentCol];
             if (cell == 0) {
-                rowOutput += (pretty.UNDERSCORE + pretty.SPACE);
+                rowOutput += (pretty.UNDERSCORE);
             }
             else if (cell > 0) {
                 rowOutput += PLAYER_X;
