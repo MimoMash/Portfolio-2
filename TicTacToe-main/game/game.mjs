@@ -250,21 +250,16 @@ function isValidPositionOnBoard(position) {
     if (position.length !== 2) {
         return false;
     }
-    
-    if ((position[0]) * 1 !== (position[0])) {
+
+    if (position[0] * 1 !== position[0] || position[1] * 1 !== position[1]) {
         return false;
 
-    } else if ((position[1]) * 1 !== (position[1])) {
+    } else if (position[0] < 0 || position[1] < 0 || position[0] >= GAME_BOARD_SIZE || position[1] >= GAME_BOARD_SIZE) {
         return false;
      
     } else if (gameboard[position[0]][position[1]] !== 0) {
         return false;  
     } 
-
-    if (position[0] < 0 || position[0] >= GAME_BOARD_SIZE ||
-        position[1] < 0 || position[1] >= GAME_BOARD_SIZE) {
-      return false;
-    }
 }
 
 function showHUD() {
@@ -283,7 +278,7 @@ function showGameBoardWithCurrentState() {
         for (let currentCol = 0; currentCol < GAME_BOARD_SIZE; currentCol++) {
             let cell = gameboard[currentRow][currentCol];
             if (cell == 0) {
-                rowOutput += (pretty.UNDERSCORE);
+                rowOutput += (pretty.UNDERSCORE + pretty.SPACE);
             }
             else if (cell > 0) {
                 rowOutput += PLAYER_X;
