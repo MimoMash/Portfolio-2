@@ -332,10 +332,17 @@ function showHUD() {
 }
 
 function showGameBoardWithCurrentState() {
+    let columnNumbers = CHARACTER.SPACE + CHARACTER.SPACE;
+    for (let i = 1; i <= GAME_BOARD_SIZE; i++) {
+        columnNumbers += CHARACTER.SPACE + i + (CHARACTER.SPACE + CHARACTER.SPACE);
+    }
+    print(columnNumbers);
+
     let horizontalLine = createHorizontalLine();
     print(horizontalLine);
+
     for (let row = 0; row < GAME_BOARD_SIZE; row++) {
-        let rowOutput = CHARACTER.VERTICAL_LINE;
+        let rowOutput = (row + 1) + CHARACTER.VERTICAL_LINE;
         for (let col = 0; col < GAME_BOARD_SIZE; col++) {
             let cell = gameboard[row][col];
             let cellContent = CHARACTER.SPACE;
@@ -353,7 +360,7 @@ function showGameBoardWithCurrentState() {
 }
 
 function createHorizontalLine() {
-    return CHARACTER.INTERSECTION + (CHARACTER.HORIZONTAL_LINE + CHARACTER.INTERSECTION).repeat(GAME_BOARD_SIZE);
+    return CHARACTER.SPACE + CHARACTER.INTERSECTION + (CHARACTER.HORIZONTAL_LINE + CHARACTER.INTERSECTION).repeat(GAME_BOARD_SIZE);
 }
 
 function initializeGame() {
@@ -383,4 +390,3 @@ function clearScreen() {
 
 
 //#endregion
-
