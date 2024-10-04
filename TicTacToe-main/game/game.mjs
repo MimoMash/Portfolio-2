@@ -332,7 +332,7 @@ function showHUD() {
 }
 
 function showGameBoardWithCurrentState() {
-    let horizontalLine = CHARACTER.HORIZONTAL_LINE;
+    let horizontalLine = createHorizontalLine();
     print(horizontalLine);
     for (let row = 0; row < GAME_BOARD_SIZE; row++) {
         let rowOutput = CHARACTER.VERTICAL_LINE;
@@ -350,6 +350,10 @@ function showGameBoardWithCurrentState() {
         print(rowOutput);
         print(horizontalLine);
     }
+}
+
+function createHorizontalLine() {
+    return CHARACTER.INTERSECTION + (CHARACTER.HORIZONTAL_LINE + CHARACTER.INTERSECTION).repeat(GAME_BOARD_SIZE);
 }
 
 function initializeGame() {
