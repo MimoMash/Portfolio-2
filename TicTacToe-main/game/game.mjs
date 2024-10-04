@@ -3,7 +3,7 @@ import { debug, DEBUG_LEVELS } from "./debug.mjs";
 import { ANSI } from "./ansi.mjs";
 import DICTIONARY from "./language.mjs";
 import showSplashScreen from "./splash.mjs";
-import pretty from "./makePretty.mjs";
+import CHARACTER from "./makePretty.mjs";
 
 
 const GAME_BOARD_SIZE = 3;
@@ -26,12 +26,13 @@ const LANGUAGE_CHOICES = {
 const GAME_MODE = {
         PVP: 1,
         PVC: 2,
-    }
+}
 
 let languageChoice = [DICTIONARY.en, DICTIONARY.no];
 let language = languageChoice[0];
 let gameboard;
 let currentPlayer;
+let gameModeChoice;
 
 
 clearScreen();
@@ -81,7 +82,7 @@ async function showMenu() {
         print(language.SETTINGS);
         print(language.EXIT_GAME);
 
-        choice = await askQuestion(pretty.EMPTY);
+        choice = await askQuestion(CHARACTER.EMPTY);
 
         if ([MENU_CHOICES.MENU_CHOICE_START_GAME, MENU_CHOICES.MENU_CHOICE_SHOW_SETTINGS, MENU_CHOICES.MENU_CHOICE_EXIT_GAME].includes(Number(choice))) {
             validChoice = true;
@@ -100,7 +101,7 @@ async function chooseLanguage() {
         print(language.ENGLISH);
         print(language.NORWEGIAN);
     
-        choice = await askQuestion(pretty.EMPTY);
+        choice = await askQuestion(CHARACTER.EMPTY);
 
         if ([LANGUAGE_CHOICES.ENGLISH, LANGUAGE_CHOICES.NORWEGIAN].includes(Number(choice))) {
             language = languageChoice[choice - 1];
@@ -119,7 +120,7 @@ async function chooseMode() {
         print(language.PVP);
         print(language.PVC);
 
-        choice = await askQuestion(pretty.EMPTY);
+        choice = await askQuestion(CHARACTER.EMPTY);
 
         if ([GAME_MODE.PVP, GAME_MODE.PVC].includes(Number(choice))) {
             validChoice = true;
@@ -130,10 +131,10 @@ async function chooseMode() {
 
 async function modeSelection() {
     let gameMode;
-    let choice = await chooseMode();
-    if (choice == GAME_MODE.PVP) {
+    gameModeChoice = await chooseMode();
+    if (gameModeChoice == GAME_MODE.PVP) {
         gameMode = playGamePvP();
-    } else if (choice == GAME_MODE.PVC) {
+    } else if (gameModeChoice == GAME_MODE.PVC) {
         gameMode = playGamePvC();
     }
     return gameMode;
@@ -166,28 +167,27 @@ async function playGamePvC() {
       if (currentPlayer == PLAYER_1) {
         move = await getGameMoveFromCurrentPlayer();
       } else if (currentPlayer == PLAYER_2) {
-        move = computerMove();
-        while (isValidPositionOnBoard(move) == false) {
-          move = computerMove();
+            move = computerMove();
+            while (isValidPositionOnBoard(move) == false) {
+            move = computerMove();
+            }
         }
-    }
-      updateGameBoardState(move);
-      outcome = evaluateGameState(); 
-      changeCurrentPlayer();
+        updateGameBoardState(move);
+        outcome = evaluateGameState(); 
+        changeCurrentPlayer();
     } while (outcome == 0)
   
     showGameSummary(outcome);
     
     return await askWantToPlayAgain();
-  }
+}
 
-  function computerMove() {
+function computerMove() {
     let row = Math.floor(Math.random() * GAME_BOARD_SIZE);
     let col = Math.floor(Math.random() * GAME_BOARD_SIZE);
     let move = [row, col];
     return move;
-  }
-
+}
 
 async function askWantToPlayAgain() {
     let answer = await askQuestion(language.PLAY_AGAIN_QUESTION);
@@ -199,12 +199,17 @@ async function askWantToPlayAgain() {
 }
 
 function showGameSummary(outcome) {
+    let mode = gameModeChoice;
     clearScreen();
+
     if (outcome == 0.5) {
-        print(language.DRAW);
-    } else {
-      let winningPlayer = (outcome > 0) ? language.PLAYER_1 : language.PLAYER_2;  
-    print(language.WINNER_IS + winningPlayer);
+        print(language.DRAW); 
+    } else if (mode == GAME_MODE.PVP) { 
+        let winningPlayer = (outcome > 0) ? language.PLAYER_1 : language.PLAYER_2; 
+        print(language.WINNER_IS + winningPlayer);
+    } else if (mode == GAME_MODE.PVC) {
+        let winningPlayer = (outcome > 0) ? language.PLAYER_1 : language.COMPUTER; 
+        print(language.WINNER_IS + winningPlayer);
     }
     showGameBoardWithCurrentState();
     print(language.GAME_OVER);
@@ -292,7 +297,7 @@ async function getGameMoveFromCurrentPlayer() {
     let position = null;
     do {
         let rawInput = await askQuestion(language.PLACE_MARK);
-        position = rawInput.split(pretty.SPACE).map(Number);
+        position = rawInput.split(CHARACTER.SPACE).map(Number);
         position[0] = position[0] - 1;
         position[1] = position[1] - 1;
     } while (isValidPositionOnBoard(position) == false)
@@ -327,23 +332,23 @@ function showHUD() {
 }
 
 function showGameBoardWithCurrentState() {
-    const PLAYER_X = ANSI.COLOR.GREEN + "X " + ANSI.RESET;
-    const PLAYER_O = ANSI.COLOR.RED + "O " + ANSI.RESET;
-    
-    for (let currentRow = 0; currentRow < GAME_BOARD_SIZE; currentRow++) {
-        let rowOutput = pretty.EMPTY;
-        for (let currentCol = 0; currentCol < GAME_BOARD_SIZE; currentCol++) {
-            let cell = gameboard[currentRow][currentCol];
-            if (cell == 0) {
-                rowOutput += (pretty.UNDERSCORE + pretty.SPACE);
+    let horizontalLine = CHARACTER.HORIZONTAL_LINE;
+    print(horizontalLine);
+    for (let row = 0; row < GAME_BOARD_SIZE; row++) {
+        let rowOutput = CHARACTER.VERTICAL_LINE;
+        for (let col = 0; col < GAME_BOARD_SIZE; col++) {
+            let cell = gameboard[row][col];
+            let cellContent = CHARACTER.SPACE;
+            if (cell > 0) {
+                cellContent = ANSI.COLOR.GREEN + CHARACTER.X + ANSI.RESET;
+            } else if (cell < 0) {
+                cellContent = ANSI.COLOR.RED + CHARACTER.O + ANSI.RESET;
             }
-            else if (cell > 0) {
-                rowOutput += PLAYER_X;
-            } else {
-                rowOutput += PLAYER_O;
-            }
+            rowOutput += CHARACTER.SPACE + cellContent + CHARACTER.SPACE + CHARACTER.VERTICAL_LINE;
         }
+
         print(rowOutput);
+        print(horizontalLine);
     }
 }
 
