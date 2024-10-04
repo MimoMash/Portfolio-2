@@ -21,14 +21,16 @@ const NO_CHOICE = -1;
 const LANGUAGE_CHOICES = {
     ENGLISH: 1,
     NORWEGIAN: 2,
+    GERMAN: 3,
+    SPANISH: 4
 }
 
 const GAME_MODE = {
-        PVP: 1,
-        PVC: 2,
+    PVP: 1,
+    PVC: 2,
 }
 
-let languageChoice = [DICTIONARY.en, DICTIONARY.no];
+let languageChoice = [DICTIONARY.en, DICTIONARY.no, DICTIONARY.de, DICTIONARY.sp];
 let language = languageChoice[0];
 let gameboard;
 let currentPlayer;
@@ -66,7 +68,7 @@ async function runGame() {
     let isPlaying = true;
     while (isPlaying) { 
         initializeGame(); 
-        isPlaying = await modeSelection();
+        isPlaying = await gameMode();
     }
 }
 
@@ -93,17 +95,21 @@ async function showMenu() {
 }
 
 async function chooseLanguage() {
+
     let choice = -1;
     let validChoice = false;
+    
     while (!validChoice) {
         clearScreen();
         print(ANSI.COLOR.YELLOW + language.CHOOSE_LANGUAGE + ANSI.RESET);
         print(language.ENGLISH);
         print(language.NORWEGIAN);
+        print(language.GERMAN);
+        print(language.SPANISH);
     
         choice = await askQuestion(CHARACTER.EMPTY);
 
-        if ([LANGUAGE_CHOICES.ENGLISH, LANGUAGE_CHOICES.NORWEGIAN].includes(Number(choice))) {
+        if ([LANGUAGE_CHOICES.ENGLISH, LANGUAGE_CHOICES.NORWEGIAN, LANGUAGE_CHOICES.GERMAN, LANGUAGE_CHOICES.SPANISH].includes(Number(choice))) {
             language = languageChoice[choice - 1];
             validChoice = true;
         }
@@ -111,6 +117,7 @@ async function chooseLanguage() {
 }
 
 async function chooseMode() {
+
     let choice = -1;
     let validChoice = false;
 
@@ -129,19 +136,24 @@ async function chooseMode() {
     return choice;
 }
 
-async function modeSelection() {
+async function gameMode() {
+
     let gameMode;
     gameModeChoice = await chooseMode();
+
     if (gameModeChoice == GAME_MODE.PVP) {
         gameMode = playGamePvP();
     } else if (gameModeChoice == GAME_MODE.PVC) {
         gameMode = playGamePvC();
     }
+
     return gameMode;
 }
 
 async function playGamePvP() {
+
     let outcome;
+
     do {
         clearScreen();
         showGameBoardWithCurrentState();
@@ -158,15 +170,17 @@ async function playGamePvP() {
 }
 
 async function playGamePvC() {
+
     let outcome;
+    let move;
+
     do {
-      clearScreen();
-      showGameBoardWithCurrentState();
-      showHUD();
-      let move;
-      if (currentPlayer == PLAYER_1) {
-        move = await getGameMoveFromCurrentPlayer();
-      } else if (currentPlayer == PLAYER_2) {
+        clearScreen();
+        showGameBoardWithCurrentState();
+        showHUD();
+        if (currentPlayer == PLAYER_1) {
+            move = await getGameMoveFromCurrentPlayer();
+        } else if (currentPlayer == PLAYER_2) {
             move = computerMove();
             while (isValidPositionOnBoard(move) == false) {
             move = computerMove();
@@ -183,22 +197,28 @@ async function playGamePvC() {
 }
 
 function computerMove() {
+
     let row = Math.floor(Math.random() * GAME_BOARD_SIZE);
     let col = Math.floor(Math.random() * GAME_BOARD_SIZE);
     let move = [row, col];
+
     return move;
 }
 
 async function askWantToPlayAgain() {
+
     let answer = await askQuestion(language.PLAY_AGAIN_QUESTION);
     let playAgain = true;
+
     if (answer && answer.toLowerCase()[0] != language.CONFIRM) {
         playAgain = false;
     }
+
     return playAgain;
 }
 
 function showGameSummary(outcome) {
+
     let mode = gameModeChoice;
     clearScreen();
 
@@ -208,8 +228,10 @@ function showGameSummary(outcome) {
         let winningPlayer = (outcome > 0) ? language.PLAYER_1 : language.PLAYER_2; 
         print(language.WINNER_IS + winningPlayer);
     } else if (mode == GAME_MODE.PVC) {
-        let winningPlayer = (outcome > 0) ? language.PLAYER_1 : language.COMPUTER; 
-        print(language.WINNER_IS + winningPlayer);
+        if (outcome > 0) {
+        print(language.WINNER_IS + language.PLAYER_1);
+        } else print(language.COMPUTER_WIN);
+
     }
     showGameBoardWithCurrentState();
     print(language.GAME_OVER);
@@ -220,8 +242,10 @@ function changeCurrentPlayer() {
 }
 
 function evaluateGameState() {
+
     let sum = 0;
     let state = 0;
+
     for (let row = 0; row < GAME_BOARD_SIZE; row++) {
 
         for (let col = 0; col < GAME_BOARD_SIZE; col++) {
@@ -243,10 +267,8 @@ function evaluateGameState() {
         if (Math.abs(sum) == GAME_BOARD_SIZE) {
             state = sum;
         }
-
         sum = 0;
     }
-
 
     { for (let row = 0, col = 0; row, col < GAME_BOARD_SIZE; row++, col++) {
         sum += gameboard[row][col];
@@ -255,7 +277,6 @@ function evaluateGameState() {
         if (Math.abs(sum) == GAME_BOARD_SIZE) {
             state = sum;
         }
-
         sum = 0;
     }
     
@@ -266,7 +287,6 @@ function evaluateGameState() {
         if (Math.abs(sum) == GAME_BOARD_SIZE) {
         state = sum;
         }
-
         sum = 0;
     }
 
@@ -288,13 +308,16 @@ function evaluateGameState() {
 }
 
 function updateGameBoardState(move) {
+
     const ROW_ID = 0;
     const COLUMN_ID = 1;
     gameboard[move[ROW_ID]][move[COLUMN_ID]] = currentPlayer;
 }
 
 async function getGameMoveFromCurrentPlayer() {
+
     let position = null;
+    
     do {
         let rawInput = await askQuestion(language.PLACE_MARK);
         position = rawInput.split(CHARACTER.SPACE).map(Number);
@@ -324,7 +347,9 @@ function isValidPositionOnBoard(position) {
 }
 
 function showHUD() {
+
     let playerDescription = language.PLAYER_1;
+
     if (PLAYER_2 == currentPlayer) {
         playerDescription = language.PLAYER_2;
     }
@@ -332,6 +357,7 @@ function showHUD() {
 }
 
 function showGameBoardWithCurrentState() {
+
     let columnNumbers = CHARACTER.SPACE + CHARACTER.SPACE;
     for (let i = 1; i <= GAME_BOARD_SIZE; i++) {
         columnNumbers += CHARACTER.SPACE + i + (CHARACTER.SPACE + CHARACTER.SPACE);
@@ -340,9 +366,11 @@ function showGameBoardWithCurrentState() {
 
     let horizontalLine = createHorizontalLine();
     print(horizontalLine);
+    
+    let rowNumber = 1;
 
     for (let row = 0; row < GAME_BOARD_SIZE; row++) {
-        let rowOutput = (row + 1) + CHARACTER.VERTICAL_LINE;
+        let rowOutput = (row + rowNumber) + CHARACTER.VERTICAL_LINE;
         for (let col = 0; col < GAME_BOARD_SIZE; col++) {
             let cell = gameboard[row][col];
             let cellContent = CHARACTER.SPACE;
@@ -359,7 +387,7 @@ function showGameBoardWithCurrentState() {
     }
 }
 
-function createHorizontalLine() {
+function createHorizontalLine() {   
     return CHARACTER.SPACE + CHARACTER.INTERSECTION + (CHARACTER.HORIZONTAL_LINE + CHARACTER.INTERSECTION).repeat(GAME_BOARD_SIZE);
 }
 
