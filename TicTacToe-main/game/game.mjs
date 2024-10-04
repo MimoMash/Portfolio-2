@@ -10,12 +10,11 @@ const GAME_BOARD_SIZE = 3;
 const PLAYER_1 = 1;
 const PLAYER_2 = -1;
 
-// These are the valid choices for the menu.
 const MENU_CHOICES = {
     MENU_CHOICE_START_GAME: 1,
     MENU_CHOICE_SHOW_SETTINGS: 2,
     MENU_CHOICE_EXIT_GAME: 3
-};
+}
 
 const NO_CHOICE = -1;
 
@@ -23,12 +22,12 @@ const LANGUAGE_CHOICES = {
     ENGLISH: 1,
     NORWEGIAN: 2,
 }
+
 const GAME_MODE = {
         PVP: 1,
         PVC: 2,
     }
 
-let gameMode;
 let languageChoice = [DICTIONARY.en, DICTIONARY.no];
 let language = languageChoice[0];
 let gameboard;
@@ -37,9 +36,7 @@ let currentPlayer;
 
 clearScreen();
 showSplashScreen();
-setTimeout(start, 2500); // This waites 2.5seconds before calling the function. i.e. we get to see the splash screen for 2.5 seconds before the menue takes over. 
-
-
+setTimeout(start, 2500); 
 
 //#region game functions -----------------------------
 
@@ -51,7 +48,6 @@ async function start() {
         chosenAction = await showMenu();
 
         if (chosenAction == MENU_CHOICES.MENU_CHOICE_START_GAME) {
-            await chooseMode();
             await runGame();
         } else if (chosenAction == MENU_CHOICES.MENU_CHOICE_SHOW_SETTINGS) {
             await chooseLanguage();
@@ -106,13 +102,8 @@ async function chooseLanguage() {
     
         choice = await askQuestion(pretty.EMPTY);
 
-        for (let i = 0; i <= languageChoice.length + 1; i++) {
-            if (choice === i) {
-            language = languageChoice[i - 1];  
-             }
-        }
-
         if ([LANGUAGE_CHOICES.ENGLISH, LANGUAGE_CHOICES.NORWEGIAN].includes(Number(choice))) {
+            language = languageChoice[choice - 1];
             validChoice = true;
         }
     }
@@ -124,9 +115,9 @@ async function chooseMode() {
 
     while(!validChoice) {
         clearScreen();
-        print(ANSI.COLOR.YELLOW + "Which game mode would you like to play?" + ANSI.RESET);
-        print("1. Player vs Player");
-        print("2. Player vs Computer");
+        print(ANSI.COLOR.YELLOW + language.CHOOSE_GAME_MODE + ANSI.RESET);
+        print(language.PVP);
+        print(language.PVC);
 
         choice = await askQuestion(pretty.EMPTY);
 
@@ -138,6 +129,7 @@ async function chooseMode() {
 }
 
 async function modeSelection() {
+    let gameMode;
     let choice = await chooseMode();
     if (choice == GAME_MODE.PVP) {
         gameMode = playGamePvP();
@@ -211,7 +203,7 @@ function showGameSummary(outcome) {
     if (outcome == 0.5) {
         print(language.DRAW);
     } else {
-      let winningPlayer = (outcome > 0) ? 1 : 2;  
+      let winningPlayer = (outcome > 0) ? language.PLAYER_1 : language.PLAYER_2;  
     print(language.WINNER_IS + winningPlayer);
     }
     showGameBoardWithCurrentState();
@@ -351,7 +343,6 @@ function showGameBoardWithCurrentState() {
                 rowOutput += PLAYER_O;
             }
         }
-
         print(rowOutput);
     }
 }
